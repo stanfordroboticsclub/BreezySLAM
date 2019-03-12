@@ -21,7 +21,6 @@ along with this code.  If not, see <http://www.gnu.org/licenses/>.
 
 MAP_SIZE_PIXELS         = 2000
 MAP_SIZE_METERS         = 20
-# LIDAR_DEVICE            = '/dev/ttyUSB0'
 
 
 # Ideally we could use all 250 or so samples that the RPLidar delivers in one 
@@ -31,61 +30,13 @@ MIN_SAMPLES   = 50
 
 from breezyslam.algorithms import RMHC_SLAM
 from breezyslam.sensors import RPLidarA1 as LaserModel
-# from rplidar import RPLidar as Lidar
 from roboviz import MapVisualizer
 
 from UDPComms import Subscriber
 import time, math
 
 
-
-last_odom = time.time()
-wheel_l = 0
-wheel_r = 0
-
-WHEEL_BASE = 19 * 25.4
-WHEEL_RAD = 6.5 * 25.4 /2
-
-def get_odom(odom):
-        print("running")
-        global last_odom
-        global wheel_r
-        global wheel_l
-        l, r = odom.get()
-
-        # http://faculty.salina.k-state.edu/tim/robotics_sg/Control/kinematics/odometry.html
-
-        dist_l = (l - wheel_l) * 2 * math.pi * WHEEL_RAD
-        dist_r = (r - wheel_r) * 2 * math.pi * WHEEL_RAD
-
-        wheel_l = l
-        wheel_r = r
-
-        v_right   = 0
-        v_forward = (dist_l + dist_r) / 2
-        v_th      = (dist_r - dist_l) / WHEEL_BASE
-
-        # delta_x = (v_forward * math.cos(self.th + v_th/2) ) # - v_right * math.sin(th)) # needed fro omni robots
-        # delta_y = (v_forward * math.sin(self.th + v_th/2) ) # + v_right * math.cos(th))
-
-        # self.x += delta_x;
-        # self.y += delta_y;
-        # self.th += v_th;
-
-        dt = time.time() - last_odom
-
-        last_odom = time.time()
-
-        print((v_forward, v_th, dt))
-        return (-v_forward, -v_th, dt)
-
-
-
 if __name__ == '__main__':
-
-    # Connect to Lidar unit
-    # lidar = Lidar(LIDAR_DEVICE)
-
     # Create an RMHC SLAM object with a laser model and optional robot model
     slam = RMHC_SLAM(LaserModel(), MAP_SIZE_PIXELS, MAP_SIZE_METERS)
 
@@ -98,8 +49,6 @@ if __name__ == '__main__':
     # Initialize empty map
     mapbytes = bytearray(MAP_SIZE_PIXELS * MAP_SIZE_PIXELS)
 
-
-
     # Create an iterator to collect scan data from the RPLidar
     # iterator = lidar.iter_scans()
 
@@ -111,11 +60,7 @@ if __name__ == '__main__':
     # next(iterator)
 
     sub = Subscriber(8110, timeout=4)
-    # odom = Subscriber(8820, timeout=4)
     sub.recv()
-    # wheel_l, wheel_r = odom.recv()
-
-    
 
     while True:
 
@@ -129,7 +74,6 @@ if __name__ == '__main__':
 
         # Update SLAM with current Lidar scan and scan angles if adequate
         if len(distances) > MIN_SAMPLES:
-            # slam.update(distances, get_odom(odom), scan_angles_degrees=angles)
             slam.update(distances, scan_angles_degrees=angles)
             previous_distances = distances.copy()
             previous_angles    = angles.copy()
@@ -137,7 +81,6 @@ if __name__ == '__main__':
         # If not adequate, use previous
         elif previous_distances is not None:
             print("not enoguh")
-            # slam.update(previous_distances, get_odom(odom), scan_angles_degrees=previous_angles)
             slam.update(previous_distances, scan_angles_degrees=previous_angles)
 
         # Get current robot position
@@ -149,7 +92,3 @@ if __name__ == '__main__':
         # Display map and robot pose, exiting gracefully if user closes it
         if not viz.display(x/1000., y/1000., theta, mapbytes):
             exit(0)
- 
-    # # Shut down the lidar connection
-    # lidar.stop()
-    # lidar.disconnect()
