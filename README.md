@@ -1,6 +1,40 @@
 BreezySLAM
 ==========
 
+</p><h3>Fast install</h3>
+
+To be able to vizualize install pyroboviz
+
+```
+sudo pip3 install numpy matplotlib
+cd BreezySLAM/PyRoboViz
+sudo python3 setup.py install
+
+```
+
+To insall BreezySLAM
+
+```
+cd BreezySLAM
+sudo python3 setup.py install
+
+```
+
+To run with odometry (on port 8820) and lidar (on port 8110) using [UDPComms](https://github.com/stanfordroboticsclub/UDPComms)
+
+```
+cd BreezySLAM
+python3 examples/udpcomms_odom_slam.py
+```
+
+To run with just lidar (on port 8110) using [UDPComms](https://github.com/stanfordroboticsclub/UDPComms)
+
+```
+cd BreezySLAM
+python3 examples/udpcomms_slam.py
+```
+
+
 <img src="breezyslam.png" align="center" width=700>
 
 <p><p><p>
