@@ -1,3 +1,6 @@
+.DS_Store
+*.pyc
+
 java/edu/wlu/cs/levy/breezyslam/algorithms/RMHCSLAM.h
 java/edu/wlu/cs/levy/breezyslam/components/Map.h
 java/edu/wlu/cs/levy/breezyslam/components/Scan.h
